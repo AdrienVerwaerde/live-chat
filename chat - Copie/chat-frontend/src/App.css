@@ -1,0 +1,313 @@
+@import url("https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap");
+
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+  --dark-purple: #3c3846;
+  --purple: #4a4b7b;
+  --beige: #fde9cc;
+  --grey: #555;
+  --light-grey: #f1f1f1;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  scroll-behavior: smooth;
+  input:-webkit-autofill {
+    -webkit-box-shadow: 0 0 0px 1000px var(--beige) inset;
+}
+}
+
+body {
+  font-family: "Open Sans", sans-serif;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  display: grid;
+  place-items: center;
+  background-color: var(--beige);
+}
+
+.title {
+  margin: 20px 0;
+  color: var(--purple);
+}
+
+.main {
+  border: 8px solid var(--purple);
+  border-radius: 24px;
+  overflow: hidden;
+}
+
+.name {
+  display: flex;
+  font-size: 32px;
+  font-weight: 700;
+  padding: 8px 16px;
+  color: var(--grey);
+  background-color: var(--beige);
+}
+
+.name > span {
+  color: var(--purple);
+}
+
+.nameInput {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--purple);
+  flex-grow: 1;
+  border: none;
+  margin: 0px 12px;
+  outline: none;
+  background-color: var(--beige);
+}
+
+.messageContainer {
+  display: flex;
+  flex-direction: column;
+  background-color: white;
+  width: 400px;
+  height: 600px;
+  overflow-y: scroll;
+  overflow-x: hidden;
+}
+
+.messageLeft,
+.messageRight {
+  list-style: none;
+  padding: 8px 12px;
+  margin: 12px;
+  max-width: 250px;
+  font-size: 18px;
+  word-wrap: break-word;
+}
+
+.messageLeft {
+  border-radius: 20px 20px 20px 0px;
+  align-self: flex-start;
+  background-color: var(--beige);
+  color: var(--purple);
+  box-shadow: -2px 2px 4px var(--light-grey);
+}
+
+.messageRight {
+  border-radius: 20px 20px 0px 20px;
+  align-self: flex-end;
+  background-color: var(--purple);
+  box-shadow: 2px 2px 4px var(--light-grey);
+  color: white;
+}
+
+.messageLeft > p > span,
+.messageRight > p > span {
+  display: block;
+  font-style: italic;
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+.feedback {
+  font-style: italic;
+  font-size: 14px;
+  padding: 0px 16px 16px 16px;
+  color: var(--purple);
+  text-align: center;
+}
+
+.messageForm {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.buttonContainer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background-color: var(--beige);
+  width: 100%;
+}
+
+.messageInput {
+  flex-grow: 1;
+  height: 48px;
+  width: 80%;
+  padding-left: 12px;
+  font-size: 16px;
+  border: none;
+  outline: none;
+  color: var(--purple);
+  background-color: var(--beige);
+}
+
+.sendButton {
+  font-size: 16px;
+  margin-right: 12px;
+  padding: 0.3rem;
+  outline: none;
+  color: white;
+  background-color: var(--purple);
+  cursor: pointer;
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+}
+
+.clientsTotal {
+  margin: 20px 0;
+  color: var(--purple);
+}
+
+.fullBody {
+  display: flex;
+  justify-content: space-around;
+}
+
+.userList {
+  padding: 2em;
+  background-color: var(--purple);
+  color: white;
+}
+
+.userList ul {
+  list-style: none;
+  padding: 0;
+}
+
+.userList li {
+  padding: 5px;
+  cursor: pointer;
+  margin: 10px 0;
+}
+
+.userList li.selectedUser {
+  background-color: var(--beige);
+  border: 1px solid var(--beige);
+  border-radius: 5px;
+  color: var(--purple);
+  font-weight: bold;
+}
+
+.flex {
+  display: flex;
+}
+
+/* Navbar Styles */
+.navbar {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 1rem;
+}
+
+.navbar a {
+  color: #f2f2f2; /* Light text color */
+  text-decoration: none;
+  font-size: 1.1rem;
+  padding: 0.5rem 1rem;
+  transition: background-color 0.3s, color 0.3s; /* Smooth transition */
+  border-radius: 5px;
+  background-color: var(--purple); /* Darker shade on hover */
+  color: #ffffff;
+}
+
+.navbar a:hover {
+  background-color: var(--dark-purple); /* Darker shade on hover */
+  color: #ffffff;
+  cursor: pointer;
+}
+
+.navbar a.active {
+  background-color: var(--purple); /* Highlight for active link */
+  color: white;
+}
+
+.navbar a:first-child {
+  font-weight: bold; /* Emphasize the first link */
+}
+
+/* General Form Container Styles */
+
+.form-container h2 {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  color: var(--grey);
+}
+
+/* Form Styles */
+.form {
+  background-color: #ffffff;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+  max-width: 400px;
+  width: 100%;
+}
+
+/* Input Styles */
+.form input {
+  width: 100%;
+  padding: 0.75rem;
+  margin: 0.5rem 0;
+  border: 2px solid var(--purple);
+  border-radius: 4px;
+  background-color: white;
+  color: var(--purple);
+  font-size: 1rem;
+  box-sizing: border-box;
+  transition: border-color 0.3s ease;
+}
+
+.form input:focus {
+  border-color: var(--purple);
+  outline: none;
+}
+
+/* Button Styles */
+.form button {
+  width: 100%;
+  padding: 0.75rem;
+  margin-top: 1rem;
+  background-color: var(--purple);
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.form button:hover {
+  background-color: var(--dark-purple); /* Slightly darker on hover */
+}
+
+/* Error & Info Message Styles */
+.form .message {
+  font-size: 0.9rem;
+  color: #be130d; /* Red for error messages */
+  margin-top: 0.5rem;
+  text-align: center;
+}
+
+.errorMessage {
+  color: rgb(195, 58, 58);
+  font-weight: bold;
+  max-width: 400px;
+  padding: 0.5rem;
+}

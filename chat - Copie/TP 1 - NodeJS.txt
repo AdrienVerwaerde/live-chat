@@ -1,0 +1,38 @@
+IMPLEMENTATION DE NOTRE LOGIQUE EN NODEJS.
+
+Nous avons réalisé une API en NodeJS a l'aide de Express et MongoDB.
+Nous avons mis en place les routes et fonctionnalitées nécessaires 
+pour gérer et manipuler des données "Users".
+Nous avons mis en place une authentification avec JWT.
+Nous avons tout les éléments pour continuer a faire notre application.
+
+Nous voulons a présent réaliser une API qui gère des produits et des commandes
+afin de simuler le fonctionnement d'un site Ecommerce.
+
+Nous voulons mettre en place les tables de données suivantes :
+
+- Products
+  title
+  description
+  price
+  createdAt
+  updatedAt
+
+- Orders
+  userId
+  productsIds
+  createdAt
+  updatedAt
+
+  Pour ceci, nous allons devoir mettre en place de nouvelles routes, qui appelleront
+  de nouvelles fonction de notre nouveau controller, qui lui même utiliseras nos
+  nouveaux modèles.
+  L'idée étant de valider les données et de documenter l'api au passage.
+ 
+ ----------------------------
+
+  Si jamais vous avez déja une idée de quelque chose que vous voulez réaliser, autre que une simulation de Ecommerce. Mes seules conditions sont les suivantes :
+
+  1. Rajouter au moins 2 tables supplémentaires
+  2. Mettez en place le CRUD et etc... pour ces 2 tables
+  3. Mettez en place la documentation Swagger et la validation de données.
