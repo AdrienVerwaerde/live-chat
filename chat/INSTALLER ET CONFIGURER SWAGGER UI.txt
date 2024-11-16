@@ -1,0 +1,27 @@
+INSTALLER ET CONFIGURER SWAGGER UI
+
+Nous avons mis en place une bonne base d'API, nous voulons a présent documenter 
+nos routes avant de continuer le développement. Nous voulons mettre en place
+SWAGGER UI, qui est un outil qui va me permettre de documenter mes endpoints
+dans mon code, et y accéder via une interface graphique a une adresse du style :
+
+http://localhost:4001/api-docs/
+
+Une fois swagger installé/configuré, il faudra documenter a l'aide de commentaires
+les différentes routes/fonctions de notre API.
+
+1. INSTALLEZ SWAGGER SUR LE PROJET
+2. CONFIGUREZ SWAGGER SUR LE SERVEUR
+3. DOCUMENTEZ AU MOINS UNE ROUTE
+
+-----------------------------------------------------------
+INSTALLER ET CONFIGURER UN SYSTEME DE VALIDATION DE DONNEES
+
+Nous avons mis en place notre API, nosu avons mis en place la documentation.
+Maintenant, nous aimerions controler un peu mieux les données qui rentrent dans l'API.
+Pour l'instant nous n'avons pas du tout de validation de donnée.
+
+Cherchez et installer un système de validation des données avant de lancer la requête
+(TIP: C'est aussi un middleware)
+
+Personellement je vais utiliser "JOI".
