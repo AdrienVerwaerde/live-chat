@@ -17,6 +17,14 @@ const messageSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-}, { timestamps: true });
+    date: {
+        type: Date,
+        default: Date.now
+    },
+    userId: { 
+        type: String, 
+        required: true 
+    },
+});
 
 module.exports = mongoose.model('Message', messageSchema);

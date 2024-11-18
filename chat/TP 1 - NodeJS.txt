@@ -1,38 +1,33 @@
-IMPLEMENTATION DE NOTRE LOGIQUE EN NODEJS.
+EXERCICE API / WEBSOCKETS :
 
-Nous avons réalisé une API en NodeJS a l'aide de Express et MongoDB.
-Nous avons mis en place les routes et fonctionnalitées nécessaires 
-pour gérer et manipuler des données "Users".
-Nous avons mis en place une authentification avec JWT.
-Nous avons tout les éléments pour continuer a faire notre application.
+Nous avons mis en place une API simple qui gère la manipulation des Users, et potentiellement des produits et des commandes.
+Nous avons mis en place aussi un système de Websockets qui dialogue avec une application Front, permettant de relayer des messages entre des utilisateurs connectés.
 
-Nous voulons a présent réaliser une API qui gère des produits et des commandes
-afin de simuler le fonctionnement d'un site Ecommerce.
+Nous voulons a présent mettre en place différentes fonctionnalitées pour aller plus loin dans le développement de cette application.
 
-Nous voulons mettre en place les tables de données suivantes :
+OBJECTIF 1 : Enregistrer les messages dans MongoDB.
 
-- Products
-  title
-  description
-  price
-  createdAt
-  updatedAt
+  Créer une table "messages", et faire persister en base de donnée les messages envoyés
+  Au moment de la connexion, charger l'historique des messages et l'afficher côté client
 
-- Orders
-  userId
-  productsIds
-  createdAt
-  updatedAt
+OBJECTIF 2 : Enregistrer des "conversations" dans MongoDB
 
-  Pour ceci, nous allons devoir mettre en place de nouvelles routes, qui appelleront
-  de nouvelles fonction de notre nouveau controller, qui lui même utiliseras nos
-  nouveaux modèles.
-  L'idée étant de valider les données et de documenter l'api au passage.
- 
- ----------------------------
+  Créer une table "conversations" dans laquelle vous stocker les informations liées a une conversation particulière.
 
-  Si jamais vous avez déja une idée de quelque chose que vous voulez réaliser, autre que une simulation de Ecommerce. Mes seules conditions sont les suivantes :
+OBJECTIF 3 : Enregistrer l'historique de connexion dans MongoDB
 
-  1. Rajouter au moins 2 tables supplémentaires
-  2. Mettez en place le CRUD et etc... pour ces 2 tables
-  3. Mettez en place la documentation Swagger et la validation de données.
+  Créer une table UserSession, enregistrer a chaque fois qu'un utilisateur se connecte ou éconnecte.
+
+OBJECTIF 4 : Filtrer/modérer les messages envoyés sur le chat
+
+  Créer un système qui me permette de créer une liste de mots "interdits" et qui
+  les remplace par des "**"
+
+OBJECTIF 5 : Gérer les déconnexions pour les profils inactifs
+
+  Mettez en place un système qui va déconnecter un utilisateur si il n'a pas été actif depuis plus de 5 minutes
+
+OBJECTIF 6 :  Système de "Statut" pour les users
+
+  Mettez en place un système de "statut" pour les utilisateur, afin de savoir si celui
+  ci est "en ligne", "hors ligne", etc...

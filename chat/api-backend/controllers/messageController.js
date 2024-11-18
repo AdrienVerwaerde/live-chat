@@ -1,6 +1,6 @@
 const Message = require('../models/messageModel');
 
-exports.createMessage = async (messageData) => {
+const createMessage = async (messageData) => {
     try {
         const message = new Message(messageData);
         await message.save();
@@ -11,12 +11,19 @@ exports.createMessage = async (messageData) => {
     }
 };
 
-exports.getMessages = async (filter = {}) => {
+const getMessages = async () => {
     try {
-        return await Message.find(filter).sort({ date: -1 });
+        console.log('Fetching messages from database...');
+        const messages = await Message.find().sort({ createdAt: 1 });
+        console.log('Messages fetched successfully:', messages);
+        return messages;
     } catch (err) {
         console.error('Error fetching messages:', err);
         throw err;
     }
 };
 
+module.exports = {
+    createMessage,
+    getMessages,
+};

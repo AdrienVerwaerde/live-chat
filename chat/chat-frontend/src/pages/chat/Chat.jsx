@@ -1,13 +1,13 @@
-// Chat.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faMugHot, faPaperPlane, faUser } from '@fortawesome/free-solid-svg-icons';
+import { faPaperPlane, faUser } from '@fortawesome/free-solid-svg-icons';
 import { io } from 'socket.io-client';
+import axios from 'axios';
 
 const socket = io('http://localhost:4001');
 
 function Chat() {
-  const [name, setName] = useState(localStorage.getItem('username') || '');
+  const [name, setName] = useState(localStorage.getItem('username') || ''); // Prefill with stored username
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState([]);
   const [feedback, setFeedback] = useState('');
@@ -17,7 +17,51 @@ function Chat() {
   const [conversations, setConversations] = useState({ All: [] });
   const [error, setError] = useState('');
   const [isBlocked, setIsBlocked] = useState(false);
-  const [countdown, setCountdown] = useState(0);
+  const [socketId, setSocketId] = useState('');
+  const [userId, setUserId] = useState(localStorage.getItem('userId') || '');
+
+useEffect(() => {
+    if (!userId) {
+        const generatedId = socket.id;
+        localStorage.setItem('userId', generatedId);
+        setUserId(generatedId);
+    }
+}, []);
+
+useEffect(() => {
+    socket.on('connect', () => {
+        setSocketId(socket.id);
+    });
+}, []);
+
+  // When a new message is posted, scroll to the bottom to show it //
+  const messageContainerRef = useRef(null);
+  useEffect(() => {
+    if (messageContainerRef.current) {
+      messageContainerRef.current.scrollTop = messageContainerRef.current.scrollHeight;
+    }
+  }, [messages, feedback]);
+//----------------------------------------------------------------//
+
+  // Get messages when connecting to the chat //
+  useEffect(() => {
+    const fetchMessages = async () => {
+      try {
+        const response = await axios.get('http://localhost:4001/api/messages/');
+        const messagesFromDb = response.data;
+        setMessages(messagesFromDb);
+        setConversations((prevConversations) => ({
+          ...prevConversations,
+          All: messagesFromDb,
+        }));
+      } catch (error) {
+        console.error('Error fetching messages:', error);
+      }
+    };
+
+    fetchMessages();
+  }, []);
+  //----------------------------------------------------------------//
 
   useEffect(() => {
     if (name) {
@@ -56,7 +100,10 @@ function Chat() {
     socket.on('error', (errorData) => {
       setError(errorData.message);
       setIsBlocked(true);
-      setCountdown(10); // Commence un compte à rebours de 10 secondes
+      setTimeout(() => {
+        setError('');
+        setIsBlocked(false);
+      }, 10000);
     });
 
     socket.on('clientsTotal', (totalClients) => {
@@ -67,21 +114,6 @@ function Chat() {
       setUsers(userList);
     });
 
-    if (countdown > 0) {
-      const interval = setInterval(() => {
-        setCountdown((prev) => {
-          if (prev <= 1) {
-            clearInterval(interval);
-            setError(''); // Supprime le message d'erreur quand le compte à rebours atteint 0
-            setIsBlocked(false);
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-      return () => clearInterval(interval);
-    }
-
     return () => {
       socket.off('message');
       socket.off('privateMessage');
@@ -90,7 +122,8 @@ function Chat() {
       socket.off('clientsTotal');
       socket.off('updateUserList');
     };
-  }, [name, recipientId, countdown]);
+  }, [name, recipientId]);
+
 
   const handleNameChange = (e) => {
     setName(e.target.value);
@@ -109,15 +142,15 @@ function Chat() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (message.trim() !== '' && !isBlocked) {
+    if (message.trim() !== '') {
       const newMessage = {
         text: message,
         author: name,
-        date: new Date().toLocaleString(),
+        date: new Date().toISOString(),
         senderId: socket.id,
         recipientId: recipientId === 'All' ? 'All' : recipientId,
+        userId: localStorage.getItem('userId') || '',
       };
-
       socket.emit('message', newMessage);
       setMessage('');
       setFeedback('');
@@ -136,7 +169,7 @@ function Chat() {
 
   const handleRecipientClick = (id) => {
     setRecipientId(id);
-    setFeedback(''); // Clear typing feedback when switching conversations
+    setFeedback('');
     socket.emit('stopTyping', id);
   };
 
@@ -185,17 +218,20 @@ function Chat() {
                 />
               </span>
             </div>
-            <ul className="messageContainer" id="messageContainer">
+            <ul className="messageContainer" 
+            id="messageContainer"
+            ref={messageContainerRef}
+            >
               {currentMessages.map((msg, index) => (
                 <li
                   key={index}
                   className={
-                    msg.senderId === socket.id ? 'messageRight' : 'messageLeft'
+                    msg.userId === localStorage.getItem('userId') ? 'messageRight' : 'messageLeft'
                   }
                 >
                   <p className="message">{msg.text}</p>
-                  <span className="messageInfo">
-                    {msg.author} - {msg.date}
+                  <span className='messageInfo'>
+                    {msg.author} - {new Date(msg.date).toLocaleString()}
                   </span>
                 </li>
               ))}
@@ -207,32 +243,28 @@ function Chat() {
                 </li>
               )}
             </ul>
-            {error && (
-              <p className="errorMessage">
-                {error} {countdown > 0 && `${countdown}s`}
-              </p>
-            )}
+            {error && <p className="errorMessage">{error}</p>}
             <form
               className="messageForm"
               id="messageForm"
               onSubmit={handleSubmit}
             >
-              <div className='buttonContainer'>
-              <input
-                type="text"
-                name="message"
-                id="messageInput"
-                className="messageInput"
-                value={message}
-                onChange={handleMessageChange}
-                onKeyUp={handleTyping}
-                disabled={countdown > 0}
-              />
-              <button type="submit" className="sendButton">
-                <span>
-                  <FontAwesomeIcon icon={faPaperPlane} />
-                </span>
-              </button>
+              <div className="buttonContainer">
+                <input
+                  type="text"
+                  name="message"
+                  id="messageInput"
+                  className="messageInput"
+                  value={message}
+                  onChange={handleMessageChange}
+                  onKeyUp={handleTyping}
+                  disabled={isBlocked}
+                />
+                <button type="submit" className="sendButton" disabled={isBlocked}>
+                  <span>
+                    <FontAwesomeIcon icon={faPaperPlane} style={{marginRight: '1px'}} />
+                  </span>
+                </button>
               </div>
             </form>
             <h3 className="clientsTotal" id="ClientTotal">

@@ -44,11 +44,15 @@ const messageController = require('../controllers/messageController');
 
 router.get('/', async (req, res) => {
     try {
+        console.log('GET /api/messages called');
         const messages = await messageController.getMessages();
+        console.log('Messages returned:', messages);
         res.json(messages);
     } catch (err) {
+        console.error('Error in GET /api/messages:', err);
         res.status(500).json({ error: 'Failed to fetch messages' });
     }
 });
+
 
 module.exports = router;

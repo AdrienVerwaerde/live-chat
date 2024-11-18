@@ -11,7 +11,7 @@ const socketIo = require('socket.io');
 const cors = require('cors');
 const http = require('http');
 const messageTimestamps = {};
-const MAX_MESSAGES = 5;
+const MAX_MESSAGES = 10;
 const TIME_INTERVAL = 10000;
 
 app.use(express.json());
@@ -40,36 +40,44 @@ io.on('connection', (socket) => {
 
   socket.on('message', async (message) => {
     const currentTime = Date.now();
-
+    
     if (!messageTimestamps[socket.id]) {
-      messageTimestamps[socket.id] = [];
+        messageTimestamps[socket.id] = [];
     }
 
     messageTimestamps[socket.id] = messageTimestamps[socket.id].filter(
-      (timestamp) => currentTime - timestamp < TIME_INTERVAL
+        (timestamp) => currentTime - timestamp < TIME_INTERVAL
     );
 
     if (messageTimestamps[socket.id].length >= MAX_MESSAGES) {
-      socket.emit('error', {
-        message: `You can only send up to ${MAX_MESSAGES} messages every 10 seconds. Please wait.`,
-      });
-      return;
+        socket.emit('error', {
+            message: `You can only send up to ${MAX_MESSAGES} messages every 10 seconds. Please wait.`,
+        });
+        return;
     }
 
-    messageTimestamps[socket.id].push(currentTime)
+    messageTimestamps[socket.id].push(currentTime);
 
-    console.log("Message : ", message);
-    if (message.recipientId === 'All') {
-      io.emit('message', message);
-    } else {
-      io.to(message.recipientId).emit('privateMessage', message);
-      socket.emit('privateMessage', message);
-    }
+    // Ajoutez `userId` basé sur `socket.id` ou un autre identifiant
+    const newMessage = {
+        ...message,
+        userId: message.userId || socket.id, // Ajoutez un identifiant utilisateur stable
+    };
+
+    console.log("Message : ", newMessage);
+
     try {
-      await messageController.createMessage(message);
-  } catch (err) {
-      console.error('Failed to save message:', err);
-  }
+        await messageController.createMessage(newMessage); // Enregistrez avec `userId`
+    } catch (err) {
+        console.error('Failed to save message:', err);
+    }
+
+    if (newMessage.recipientId === 'All') {
+        io.emit('message', newMessage);
+    } else {
+        io.to(newMessage.recipientId).emit('privateMessage', newMessage);
+        socket.emit('privateMessage', newMessage);
+    }
 });
 
 socket.on('privateMessage', async ({ recipientId, message }) => {
@@ -80,7 +88,7 @@ socket.on('privateMessage', async ({ recipientId, message }) => {
       senderId: socket.id,
       recipientId: recipientId,
   };
-  const newPrivateMessage = new Message(privateMessage);
+  const newPrivateMessage = new message(privateMessage);
   try {
       await newPrivateMessage.save();
       console.log('Message privé enregistré avec succès');
