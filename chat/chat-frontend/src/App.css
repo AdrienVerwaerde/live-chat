@@ -61,6 +61,7 @@ body {
   padding: 8px 16px;
   color: var(--grey);
   background-color: var(--beige);
+  border-bottom: var(--purple) 2px dashed;
 }
 
 .name > span {
@@ -76,6 +77,7 @@ body {
   margin: 0px 12px;
   outline: none;
   background-color: var(--beige);
+  
 }
 
 .messageContainer {
@@ -317,5 +319,25 @@ body {
   font-weight: bold;
   max-width: 400px;
   padding: 0.5rem;
+}
+
+.userItem {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.userStatus {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.userOnline {
+  background-color: rgb(0, 218, 0);
+}
+
+.userOffline {
+  background-color: red;
 }
 

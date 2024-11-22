@@ -21,7 +21,15 @@ const userSchema = mongoose.Schema({
     enum: ['user', 'admin'],
     default: 'user'
   },
-}, {timestamps: true});
+  status: { 
+    type: String, 
+    default: 'hors ligne' 
+  },
+  lastActivity: { 
+    type: Date, 
+    default: null 
+  },
+}, { timestamps: true });
 
 const User = mongoose.model('User', userSchema);
 module.exports = User;

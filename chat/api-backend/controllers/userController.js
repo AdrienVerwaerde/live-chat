@@ -119,6 +119,8 @@ exports.loginUser = async (req, res) => {
   }
 }
 
+
+
 // Nous voulons mettre en place ici les fonctions suivantes :
 // updateUser
 // deleteUser

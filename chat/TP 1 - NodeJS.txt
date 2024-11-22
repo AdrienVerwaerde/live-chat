@@ -5,7 +5,7 @@ Nous avons mis en place aussi un système de Websockets qui dialogue avec une ap
 
 Nous voulons a présent mettre en place différentes fonctionnalitées pour aller plus loin dans le développement de cette application.
 
-OBJECTIF 1 : Enregistrer les messages dans MongoDB.
+OBJECTIF 1 : Enregistrer les messages dans MongoDB. OK
 
   Créer une table "messages", et faire persister en base de donnée les messages envoyés
   Au moment de la connexion, charger l'historique des messages et l'afficher côté client

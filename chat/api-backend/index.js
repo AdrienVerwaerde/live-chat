@@ -13,9 +13,30 @@ const http = require('http');
 const messageTimestamps = {};
 const MAX_MESSAGES = 10;
 const TIME_INTERVAL = 10000;
+const fs = require('fs');
 
 app.use(express.json());
 app.use(cors());
+
+
+// FETCH LIST OF BAD WORDS
+let badwords = [];
+fs.readFile('./libs/badwords.json', 'utf8', (err, data) => {
+  if (err) {
+    console.error('Erreur lors du chargement des mots interdits:', err);
+    return;
+  }
+  badwords = JSON.parse(data);
+  console.log('Mots interdits chargés :', badwords.length, 'mots.');
+});
+
+
+// FILTER MESSAGES
+function filterMessage(text, badwords) {
+  const regex = new RegExp(`\\b(${badwords.join('|')})\\b`, 'gi');
+  return text.replace(regex, '***');
+}
+
 
 // Socket IO CONFIG
 const server = http.createServer(app);
@@ -29,76 +50,74 @@ let socketsConnected = new Set();
 let users = {};
 
 io.on('connection', (socket) => {
-  console.log(`New user connected : ${socket.id}`)
+  console.log(`New user connected: ${socket.id}`);
   socketsConnected.add(socket.id);
 
   socket.on('setUsername', (username) => {
-    users[socket.id] = username;
+    users[socket.id] = { username, online: true };
     console.log("Liste d'utilisateurs : ", users);
     io.emit('updateUserList', users);
-  })
+  });
 
   socket.on('message', async (message) => {
     const currentTime = Date.now();
-    
     if (!messageTimestamps[socket.id]) {
-        messageTimestamps[socket.id] = [];
+      messageTimestamps[socket.id] = [];
     }
-
     messageTimestamps[socket.id] = messageTimestamps[socket.id].filter(
-        (timestamp) => currentTime - timestamp < TIME_INTERVAL
+      (timestamp) => currentTime - timestamp < TIME_INTERVAL
     );
-
     if (messageTimestamps[socket.id].length >= MAX_MESSAGES) {
-        socket.emit('error', {
-            message: `You can only send up to ${MAX_MESSAGES} messages every 10 seconds. Please wait.`,
-        });
-        return;
+      socket.emit('error', {
+        message: `You can only send up to ${MAX_MESSAGES} messages every 10 seconds. Please wait.`,
+      });
+      return;
     }
-
     messageTimestamps[socket.id].push(currentTime);
 
-    // Ajoutez `userId` basé sur `socket.id` ou un autre identifiant
+    // Filter message content
+    const filteredText = filterMessage(message.text, badwords);
     const newMessage = {
-        ...message,
-        userId: message.userId || socket.id, // Ajoutez un identifiant utilisateur stable
-    };
+      ...message,
+      text: filteredText, 
+      userId: message.userId || socket.id,
+  };
 
-    console.log("Message : ", newMessage);
+  console.log('Message filtré :', newMessage);
 
     try {
-        await messageController.createMessage(newMessage); // Enregistrez avec `userId`
+      await messageController.createMessage(newMessage);
     } catch (err) {
-        console.error('Failed to save message:', err);
+      console.error('Failed to save message:', err);
     }
 
     if (newMessage.recipientId === 'All') {
-        io.emit('message', newMessage);
+      io.emit('message', newMessage);
     } else {
-        io.to(newMessage.recipientId).emit('privateMessage', newMessage);
-        socket.emit('privateMessage', newMessage);
+      io.to(newMessage.recipientId).emit('privateMessage', newMessage);
+      socket.emit('privateMessage', newMessage);
     }
-});
+  });
 
-socket.on('privateMessage', async ({ recipientId, message }) => {
-  const privateMessage = {
+  socket.on('privateMessage', async ({ recipientId, message }) => {
+    const privateMessage = {
       text: message,
       author: users[socket.id],
       date: new Date().toLocaleString(),
       senderId: socket.id,
       recipientId: recipientId,
-  };
-  const newPrivateMessage = new message(privateMessage);
-  try {
+    };
+    const newPrivateMessage = new message(privateMessage);
+    try {
       await newPrivateMessage.save();
       console.log('Message privé enregistré avec succès');
-  } catch (err) {
+    } catch (err) {
       console.error('Erreur lors de l\'enregistrement du message privé:', err);
-  }
+    }
 
-  io.to(recipientId).emit('privateMessage', privateMessage);
-  socket.emit('privateMessage', privateMessage);
-});
+    io.to(recipientId).emit('privateMessage', privateMessage);
+    socket.emit('privateMessage', privateMessage);
+  });
 
   socket.on('typing', ({ recipientId, feedback }) => {
     if (recipientId === 'All') {
@@ -120,18 +139,20 @@ socket.on('privateMessage', async ({ recipientId, message }) => {
   io.emit('clientsTotal', socketsConnected.size);
 
   socket.on('disconnect', () => {
-    console.log(`Client disconnected : ${socket.id}`)
+    console.log(`Client disconnected: ${socket.id}`);
     socketsConnected.delete(socket.id);
-    delete users[socket.id];
+    if (users[socket.id]) {
+      delete users[socket.id];
+    }
     io.emit('updateUserList', users);
     io.emit('clientsTotal', socketsConnected.size);
   });
-
 });
 
 // ROUTES CONFIG
 const apiRoutes = require('./routes');
 app.use('/api', apiRoutes);
+
 
 // SWAGGER INIT CONFIG
 const swaggerOptions = {

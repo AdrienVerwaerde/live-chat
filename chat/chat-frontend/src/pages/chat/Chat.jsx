@@ -20,19 +20,19 @@ function Chat() {
   const [socketId, setSocketId] = useState('');
   const [userId, setUserId] = useState(localStorage.getItem('userId') || '');
 
-useEffect(() => {
+  useEffect(() => {
     if (!userId) {
-        const generatedId = socket.id;
-        localStorage.setItem('userId', generatedId);
-        setUserId(generatedId);
+      const generatedId = socket.id;
+      localStorage.setItem('userId', generatedId);
+      setUserId(generatedId);
     }
-}, []);
+  }, []);
 
-useEffect(() => {
+  useEffect(() => {
     socket.on('connect', () => {
-        setSocketId(socket.id);
+      setSocketId(socket.id);
     });
-}, []);
+  }, []);
 
   // When a new message is posted, scroll to the bottom to show it //
   const messageContainerRef = useRef(null);
@@ -41,7 +41,7 @@ useEffect(() => {
       messageContainerRef.current.scrollTop = messageContainerRef.current.scrollHeight;
     }
   }, [messages, feedback]);
-//----------------------------------------------------------------//
+  //----------------------------------------------------------------//
 
   // Get messages when connecting to the chat //
   useEffect(() => {
@@ -190,18 +190,25 @@ useEffect(() => {
               >
                 All
               </li>
-              {Object.keys(users).map(
-                (id) =>
-                  id !== socket.id && (
-                    <li
-                      key={id}
-                      onClick={() => handleRecipientClick(id)}
-                      className={id === recipientId ? 'selectedUser' : ''}
-                    >
-                      {users[id]}
-                    </li>
-                  )
-              )}
+              {Object.keys(users).map((id) => {
+                if (id === socket.id) return null;
+
+                return (
+                  <li
+                    key={id}
+                    onClick={() => handleRecipientClick(id)}
+                    className={id === recipientId ? 'selectedUser' : ''}
+                  >
+                    <div className="userItem">
+                      <span
+                        className={`userStatus ${users[id]?.online ? 'userOnline' : 'userOffline'
+                          }`}
+                      ></span>
+                      {users[id]?.username || 'Unknown'}
+                    </div>
+                  </li>
+                );
+              })}
             </ul>
           </div>
           <div className="conversation">
@@ -218,9 +225,9 @@ useEffect(() => {
                 />
               </span>
             </div>
-            <ul className="messageContainer" 
-            id="messageContainer"
-            ref={messageContainerRef}
+            <ul className="messageContainer"
+              id="messageContainer"
+              ref={messageContainerRef}
             >
               {currentMessages.map((msg, index) => (
                 <li
@@ -262,7 +269,7 @@ useEffect(() => {
                 />
                 <button type="submit" className="sendButton" disabled={isBlocked}>
                   <span>
-                    <FontAwesomeIcon icon={faPaperPlane} style={{marginRight: '1px'}} />
+                    <FontAwesomeIcon icon={faPaperPlane} style={{ marginRight: '1px' }} />
                   </span>
                 </button>
               </div>
