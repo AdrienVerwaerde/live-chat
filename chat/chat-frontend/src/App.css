@@ -337,7 +337,7 @@ body {
   background-color: rgb(0, 218, 0);
 }
 
-.userOffline {
-  background-color: red;
+.userAbsent {
+  background-color: rgb(255, 153, 0);
 }
 

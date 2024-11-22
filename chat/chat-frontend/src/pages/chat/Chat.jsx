@@ -21,6 +21,30 @@ function Chat() {
   const [userId, setUserId] = useState(localStorage.getItem('userId') || '');
 
   useEffect(() => {
+    socket.on('updateUserList', (userList) => {
+      setUsers(userList);
+    });
+
+    return () => {
+      socket.off('updateUserList');
+    };
+  }, []);
+
+  const getStatus = (user) => {
+    const lastActive = user.lastActive;
+    const currentTime = Date.now();
+    const diff = (currentTime - lastActive) / 1000 / 60; // Différence en minutes
+
+    if (diff > 5) {
+      return 'Absent';
+    } else if (user.online) {
+      return 'En ligne';
+    } else {
+      return 'Hors ligne';
+    }
+  };
+
+  useEffect(() => {
     if (!userId) {
       const generatedId = socket.id;
       localStorage.setItem('userId', generatedId);
@@ -192,7 +216,6 @@ function Chat() {
               </li>
               {Object.keys(users).map((id) => {
                 if (id === socket.id) return null;
-
                 return (
                   <li
                     key={id}
@@ -200,11 +223,11 @@ function Chat() {
                     className={id === recipientId ? 'selectedUser' : ''}
                   >
                     <div className="userItem">
+                      {users[id]?.username || 'Unknown'}
                       <span
                         className={`userStatus ${users[id]?.online ? 'userOnline' : 'userOffline'
                           }`}
                       ></span>
-                      {users[id]?.username || 'Unknown'}
                     </div>
                   </li>
                 );

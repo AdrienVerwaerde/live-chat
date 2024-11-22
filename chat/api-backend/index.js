@@ -54,12 +54,15 @@ io.on('connection', (socket) => {
   socketsConnected.add(socket.id);
 
   socket.on('setUsername', (username) => {
-    users[socket.id] = { username, online: true };
+    users[socket.id] = { username, online: true, lastActive: Date.now() };
     console.log("Liste d'utilisateurs : ", users);
     io.emit('updateUserList', users);
   });
 
   socket.on('message', async (message) => {
+    users[socket.id].lastActive = Date.now();
+    io.emit('updateUserList', users);
+
     const currentTime = Date.now();
     if (!messageTimestamps[socket.id]) {
       messageTimestamps[socket.id] = [];
@@ -141,9 +144,7 @@ io.on('connection', (socket) => {
   socket.on('disconnect', () => {
     console.log(`Client disconnected: ${socket.id}`);
     socketsConnected.delete(socket.id);
-    if (users[socket.id]) {
-      delete users[socket.id];
-    }
+    delete users[socket.id];
     io.emit('updateUserList', users);
     io.emit('clientsTotal', socketsConnected.size);
   });
